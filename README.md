@@ -11,20 +11,6 @@ The simulation was independently implemented in Python as part of an **On-Job Tr
 
 ---
 
-## 🏛️ Institutional Details
-
-| | |
-|---|---|
-| **Institution** | SIES College of Arts, Science & Commerce (Autonomous), Sion (W), Mumbai |
-| **Training Lab** | Physical Biology Lab, IIT Bombay |
-| **Supervisor** | Dr. Ranjith Padinhateeri, Department of Biosciences & Bioengineering, IIT Bombay |
-| **Mentor** | Mr. Vinoth M., Ph.D. Scholar, Physical Biology Lab |
-| **Authors** | Yadav Janhavi Tarendrakumar & Chowdhry Nida Abu Bilal |
-| **Program** | M.Sc. Physics |
-| **Year** | 2025 |
-
----
-
 ## 🧬 Biological Background
 
 Epigenetic memory refers to the ability of cells to remember and maintain specific patterns of gene expression across cell divisions — **without any change in the DNA sequence**.
