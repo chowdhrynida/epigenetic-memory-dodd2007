@@ -1,66 +1,244 @@
+<div align="center">
+
 # Stochastic Simulation of Histone-Based Epigenetic Memory
-### A Study Inspired by Dodd et al. (Cell, 2007)
+### A Computational Study Inspired by Dodd *et al.* (*Cell*, 2007)
+
+**Nida Chowdhry**
+M.Sc. Physics, SIES College of Arts, Science & Commerce (Autonomous), Mumbai
+On-the-Job Training · Physical Biology Lab, IIT Bombay · 2025
+Supervisor: Dr. Ranjith Padinhateeri &nbsp;|&nbsp; Mentor: Vinoth M.
+
+</div>
 
 ---
 
-## 📌 Project Overview
+## Abstract
 
-This project presents a **stochastic Monte Carlo simulation** of histone-based epigenetic memory using a theoretical model proposed by **Dodd et al. (Cell, 2007)**. The model explores how nucleosome modification states — Methylated (M), Unmodified (U), and Acetylated (A) — can give rise to **bistability** and **stable epigenetic memory** through feedback-driven recruitment and random noise.
-
-The simulation was independently implemented in Python as part of an **On-Job Training (OJT)** at the **Physical Biology Lab, IIT Bombay**, under the guidance of **Dr. Ranjith Padinhateeri**.
-
----
-
-## 🧬 Biological Background
-
-Epigenetic memory refers to the ability of cells to remember and maintain specific patterns of gene expression across cell divisions — **without any change in the DNA sequence**.
-
-A key mechanism behind this involves **nucleosome modifications**:
-- **Methylation (M)** → gene silencing (e.g., H3K9me)
-- **Acetylation (A)** → gene activation (e.g., H3K14Ac)
-- **Unmodified (U)** → neutral/intermediate state
-
-Modified nucleosomes recruit enzymes that reinforce the **same modification in neighboring nucleosomes**, forming **positive feedback loops** — the core of epigenetic bistability.
+Cells can inherit and maintain patterns of gene expression across divisions without any
+change to the underlying DNA sequence — a phenomenon known as **epigenetic memory**.
+This project reproduces and extends the stochastic model of Dodd *et al.* (2007), in
+which a linear array of nucleosomes switches between Methylated (M), Unmodified (U),
+and Acetylated (A) states through feedback-driven enzyme recruitment competing against
+random noise. Using a Monte Carlo implementation in Python, we study how the
+**feedback-to-noise ratio** *F* governs the emergence of **bistability**, quantify memory
+strength via **gap score** and **state lifetime**, and examine how **cooperativity** and
+**spatial constraints** on recruitment shape the robustness of epigenetic memory.
 
 ---
 
-## 🎯 Objectives
+## Table of Contents
 
-1. Recreate the stochastic nucleosome modification model from Dodd et al. (2007) in Python
-2. Study the effect of **feedback-to-noise ratio (F)** on bistability
-3. Measure **gap score (G)** and **state lifetime** as metrics of epigenetic memory
-4. Analyze the role of **cooperativity** in bistability
-5. Study the effect of **spatial constraints** on memory formation
-6. Compare simulation results with the original paper
-
----
-
-## 🧪 The Model
-
-- **System**: Linear array of N = 60 nucleosomes
-- **States**: Each nucleosome ∈ {M, U, A}
-- **Transitions**: Only via U (no direct M ↔ A)
-- **Feedback**: Modified nucleosomes recruit enzymes to convert neighbors
-- **Noise**: Random spontaneous state changes
-- **Key Parameter**: Feedback-to-noise ratio F = α / (1 − α)
+1. [Biological Background](#1-biological-background)
+2. [The Model](#2-the-model)
+3. [Methods](#3-methods)
+4. [Results](#4-results)
+5. [Discussion](#5-discussion)
+6. [Repository Structure](#6-repository-structure)
+7. [How to Run](#7-how-to-run)
+8. [References](#8-references)
+9. [Acknowledgements](#9-acknowledgements)
 
 ---
 
-## 📂 Project Structure
+## 1. Biological Background
+
+Epigenetic memory arises from **nucleosome modifications** that recruit enzymes capable
+of reinforcing the same modification in neighboring nucleosomes — a positive feedback
+loop that can lock a chromatin region into a stable, heritable state.
+
+| State | Modification | Biological role |
+|---|---|---|
+| **M** | Methylated (e.g. H3K9me) | Gene silencing |
+| **A** | Acetylated (e.g. H3K14Ac) | Gene activation |
+| **U** | Unmodified | Neutral / intermediate |
+
+<p align="center">
+  <img src="theory_state_diagram.png" width="620" alt="M-U-A nucleosome state transition diagram"><br>
+  <sub><b>Figure A.</b> Nucleosomes switch between Methylated (M) and Acetylated (A) states only via the Unmodified (U) intermediate. Each modified state recruits enzymes that reinforce the same modification in neighboring nucleosomes — a positive feedback loop competing against spontaneous noise.</sub>
+</p>
+
+Because all transitions pass through the unmodified state (no direct M ↔ A conversion),
+the system's long-term behavior is governed by the competition between **feedback**
+(recruitment-driven conversion) and **noise** (spontaneous, random state changes).
+
+### 1.1 How a modification actually happens
+
+Each mark is added or removed by a dedicated enzyme — the model's states are a
+simplification of real biochemistry:
+
+| Direction | Enzymes involved |
+|---|---|
+| U → M (methylation) | Methyltransferases |
+| M → U (demethylation) | Demethylases |
+| U → A (acetylation) | Acetyltransferases |
+| A → U (deacetylation) | Deacetylases |
+
+A modified nucleosome can **recruit** the corresponding enzyme to a neighboring,
+unmodified nucleosome — converting it to the same state and propagating the mark along
+the chromatin fiber. This recruitment is the feedback term in the model; everything
+else is noise.
+
+### 1.2 Motivation
+
+The model is motivated by silencing of the mating-type region in fission yeast
+(*S. pombe*), monitored experimentally using a *ura4+* reporter gene. This silencing is
+associated with **H3K9 methylation** and the proteins **Swi6, Clr4,** and **Clr3/6**,
+which read and write the methyl mark. Because a modified nucleosome recruits the same
+enzymes to its neighbors, the system forms a feedback loop — raising the core question
+this project investigates:
+
+> Can simple feedback plus random noise alone produce chromatin states that are stable
+> and heritable?
+
+---
+
+## 2. The Model
+
+- **System:** a linear array of *N* = 60 nucleosomes
+- **States:** each nucleosome ∈ {M, U, A}
+- **Transitions:** only via U — no direct M ↔ A switching
+- **Feedback:** modified nucleosomes recruit enzymes that convert neighbors to the same state
+- **Noise:** spontaneous, feedback-independent state changes
+- **Control parameter:** feedback-to-noise ratio
+
+<div align="center">
+
+**F = α / (1 − α)**
+
+</div>
+
+where α is the fraction of conversions driven by feedback recruitment rather than
+random noise.
+
+<p align="center">
+  <img src="model_array_diagram.png" width="650" alt="Linear nucleosome array with local and long-range recruitment"><br>
+  <sub><b>Figure B.</b> The simulated system: a linear array of N = 60 nucleosomes (truncated here for clarity). A modified nucleosome can recruit its immediate neighbor (solid arrow) or, under the spatial-constraint model, a distant nucleosome with probability decaying as a power law in separation d (dashed arrow) — used to probe the role of long-range interactions in Section 4.5.</sub>
+</p>
+
+---
+
+## 3. Methods
+
+The model was implemented independently in Python using a Gillespie-style stochastic
+framework.
+
+### 3.1 Kinetic Monte Carlo algorithm
+
+1. Initialize all *N* = 60 nucleosomes randomly in state U, M, or A.
+2. Repeat for *T* simulation steps:
+   - Randomly pick a nucleosome, n₁.
+   - Draw a random number *r* ∈ [0, 1]:
+     - **If r < α** (feedback / recruitment): randomly pick a second nucleosome, n₂.
+       - If n₂ is M → n₁ converts to M.
+       - If n₂ is A → n₁ converts to A.
+       - If n₂ is U → no change (nothing to recruit).
+     - **Else** (probability 1 − α, noise): convert n₁ to one of the other two states,
+       chosen with equal (1/3) probability.
+   - Record the counts of M, U, and A.
+3. Plot the resulting time series and distributions.
+
+### 3.2 Analyses
+
+Six simulation scripts address different aspects of the model (full mapping
+in [§6](#6-repository-structure)):
+
+1. **Time evolution & bistability** — track M(t) and the resulting probability
+   distribution P(M) across a range of *F*.
+2. **State lifetime** — measure how long a region stays "locked" in a high-M or
+   high-A state before switching, using a 1.5× threshold classification rule.
+3. **Gap score** — quantify separation between the two stable states as
+   G = |M − A| / (M + A).
+4. **Cooperativity** — compare three recruitment schemes (Cases A/B/C: full feedback,
+   modification-only, demodification-only) with and without cooperative recruitment.
+5. **Spatial constraints** — restrict recruitment range (global vs. nearest-neighbor
+   vs. power-law decay ∝ 1/d^1.5) to test the role of long-range interactions.
+
+---
+
+## 4. Results
+
+### 4.1 Bistability emerges above a critical feedback-to-noise ratio
+
+<p align="center">
+  <img src="results/bistability_timetrace.png" width="600" alt="Time trace of M(t) at varying F"><br>
+  <sub><b>Figure 1.</b> Time evolution of the methylated fraction M(t) at F = 0.4, 1.0, 1.4, 2.0. A clear bimodal distribution P(M) emerges at high F, indicating strong bistability.</sub>
+</p>
+
+### 4.2 State lifetime grows with feedback strength
+
+<p align="center">
+  <img src="results/lifetime_vs_F.png" width="600" alt="State lifetime vs feedback-to-noise ratio"><br>
+  <sub><b>Figure 2.</b> Average lifetime of a dominant (high-M or high-A) state increases approximately exponentially with F.</sub>
+</p>
+
+### 4.3 Gap score shows a sharp transition
+
+<p align="center">
+  <img src="results/gap_score_vs_F.png" width="600" alt="Gap score vs feedback-to-noise ratio"><br>
+  <sub><b>Figure 3.</b> Gap score G rises sigmoidally with F, with a sharp transition around F ≈ 1.0–1.5, and G → 1 confirms robust bistability at high feedback.</sub>
+</p>
+
+### 4.4 Cooperativity is essential only for partial feedback
+
+<p align="center">
+  <img src="results/cooperativity_cases.png" width="600" alt="Gap score vs F for cooperativity Cases A, B, C"><br>
+  <sub><b>Figure 4.</b> Case A (full feedback) shows strong bistability even without explicit cooperativity, via implicit two-step recruitment. Case B (modification-only) requires cooperativity for stable memory. Case C (demodification-only) remains weakly bistable even with cooperativity.</sub>
+</p>
+
+| Case | Feedback type | Result |
+|---|---|---|
+| A | Modification + demodification | Strong bistability without explicit cooperativity |
+| B | Modification only | Cooperativity required for bistability |
+| C | Demodification only | Cooperativity alone is insufficient |
+
+### 4.5 Long-range recruitment matters
+
+<p align="center">
+  <img src="results/spatial_constraints.png" width="600" alt="Gap score vs F for spatial models"><br>
+  <sub><b>Figure 5.</b> Restricting recruitment to nearest neighbors sharply weakens bistability; power-law decay (∝ 1/d^1.5), consistent with 3D chromatin folding, partially restores it.</sub>
+</p>
+
+| Case | Spatial model | Result |
+|---|---|---|
+| A | No constraint (global) | Strong bistability |
+| B | Nearest-neighbor only | Weak bistability, slow rise in G |
+| C | Power-law decay (1/d^1.5) | Moderate bistability restored |
+
+---
+
+## 5. Discussion
+
+- Bistability requires a minimum feedback-to-noise ratio, **F ≳ 1.5**.
+- The **full feedback model** (Case A) is intrinsically bistable even without
+  explicit cooperativity, because two-step recruitment through U already supplies an
+  implicit nonlinearity.
+- **Partial feedback** (modification-only) depends critically on cooperative
+  recruitment to achieve the same robustness.
+- **Long-range recruitment is important**: restricting interactions to nearest
+  neighbors substantially weakens memory, while power-law decay — a proxy for
+  chromatin's 3D folding — largely restores it.
+
+These results are broadly consistent with the original Dodd *et al.* (2007) findings
+and support the view that epigenetic memory is an emergent property of feedback
+topology as much as of any single molecular mechanism.
+
+---
+
+## 6. Repository Structure
 
 ```
 epigenetic-memory-dodd2007/
 │
 ├── simulation/
-│   ├── bistability.py                  # Time evolution & bistability (Section 5.1)
-│   ├── lifetime_gap_score.py           # Lifetime & Gap Score vs F (Section 5.2 & 5.3)
-│   ├── cooperativity_gap_score.py      # G vs F for Cases A, B, C (Section 5.4)
-│   ├── cooperativity_distribution.py   # P(M-A) distribution under cooperativity (Section 5.4)
-│   ├── spatial_constraints.py          # G vs F for spatial models (Section 5.5)
-│   └── spatial_distribution.py         # P(M-A) under spatial constraints (Section 5.5)
+│   ├── bistability.py                  # Time evolution & bistability        → Fig. 1
+│   ├── lifetime_gap_score.py           # Lifetime & gap score vs F           → Fig. 2, 3
+│   ├── cooperativity_gap_score.py      # G vs F, Cases A/B/C                 → Fig. 4
+│   ├── cooperativity_distribution.py   # P(M−A) under cooperativity
+│   ├── spatial_constraints.py          # G vs F, spatial models              → Fig. 5
+│   └── spatial_distribution.py         # P(M−A) under spatial constraints
 │
 ├── results/
-│   └── (simulation graphs and figures)
+│   └── (simulation graphs — see Section 4 for filenames)
 │
 ├── requirements.txt
 └── README.md
@@ -68,57 +246,14 @@ epigenetic-memory-dodd2007/
 
 ---
 
-## 📊 Simulations Performed
+## 7. How to Run
 
-### 1. Bistability vs Feedback-to-Noise Ratio
-- Simulated nucleosome dynamics at F = 0.4, 1.0, 1.4, 2.0
-- Plotted time traces of M(t) and probability distributions P(M)
-- **Key finding**: Clear bimodal distribution emerges at high F → strong bistability
-
-### 2. Lifetime vs Feedback-to-Noise Ratio
-- Measured average duration of high-M and high-A states
-- Used 1.5× threshold rule to classify dominant states
-- **Key finding**: Lifetime increases exponentially with F
-
-### 3. Gap Score vs Feedback-to-Noise Ratio
-- Gap Score G = |M − A| / (M + A)
-- Sigmoidal G vs F curve with sharp transition around F = 1.0–1.5
-- **Key finding**: G → 1 at high F, confirming robust bistability
-
-### 4. Effect of Cooperativity (Cases A, B, C)
-| Case | Feedback Type | Result |
-|------|--------------|--------|
-| A | Both modification + demodification | Strong bistability even without explicit cooperativity |
-| B | Modification only | Cooperativity essential for bistability |
-| C | Demodification only | Even cooperativity insufficient for strong bistability |
-
-### 5. Spatial Constraint Effects (Cases A, B, C)
-| Case | Spatial Model | Result |
-|------|--------------|--------|
-| A | No constraint (global) | Strong bistability |
-| B | Neighbor-only recruitment | Weak bistability, slow G rise |
-| C | Power-law decay (∝ 1/d^1.5) | Moderate bistability restored |
-
----
-
-## 🛠️ Libraries Used
-
-| Library | Purpose |
-|---------|---------|
-| `numpy` | Array operations, random number generation |
-| `matplotlib` | Plotting graphs and distributions |
-| `collections` | Counter for histogram building |
-
----
-
-## ▶️ How to Run
-
-**Step 1: Install dependencies**
+**Install dependencies**
 ```bash
 pip install numpy matplotlib
 ```
 
-**Step 2: Run any simulation**
+**Run any simulation**
 ```bash
 python simulation/bistability.py
 python simulation/lifetime_gap_score.py
@@ -128,35 +263,24 @@ python simulation/spatial_constraints.py
 python simulation/spatial_distribution.py
 ```
 
-> ⚠️ Note: Some simulations (especially cooperativity and spatial) are computationally heavy and may take several minutes to hours depending on your system.
+> **Note:** the cooperativity and spatial-constraint simulations are computationally
+> heavy and may take several minutes to hours depending on your system.
 
 ---
 
-## 📈 Key Results
+## 8. References
 
-- Bistability **requires** a minimum feedback-to-noise ratio (F ≥ ~1.5)
-- **Full feedback model** (Case A) shows bistability even without explicit cooperativity due to implicit two-step recruitment
-- **Modification-only feedback** (Case B) requires explicit cooperativity for stable memory
-- **Neighbor-only spatial constraints** significantly reduce bistability — long-range interactions are crucial
-- **Power-law recruitment** partially restores memory, consistent with 3D chromatin folding
+Dodd, I. B., Micheelsen, M. A., Sneppen, K., & Thon, G. (2007).
+**Theoretical Analysis of Epigenetic Cell Memory by Nucleosome Modification.**
+*Cell*, 129(4), 813–822. https://doi.org/10.1016/j.cell.2007.02.053
 
 ---
 
-## 📖 Reference
+## 9. Acknowledgements
 
-> Dodd, I. B., Micheelsen, M. A., Sneppen, K., & Thon, G. (2007).
-> **Theoretical Analysis of Epigenetic Cell Memory by Nucleosome Modification.**
-> *Cell*, 129(4), 813–822.
-> https://doi.org/10.1016/j.cell.2007.02.053
+I thank **Dr. Ranjith Padinhateeri** (IIT Bombay) for the opportunity to work in his
+lab and for his guidance, and **Vinoth M.** (Ph.D. Scholar) for his mentorship and
+support throughout this project. I also thank **SIES College of Arts, Science &
+Commerce (Autonomous)** for facilitating this OJT opportunity.
 
----
-
-## 🙏 Acknowledgements
-
-We thank **Dr. Ranjith Padinhateeri** (IIT Bombay) for providing the opportunity to work in his lab and for his inspiring guidance. We are grateful to **Mr. Vinoth M.** (Ph.D. Scholar) for his constant mentorship and support throughout this project.
-
-We also thank **SIES College of Arts, Science & Commerce (Autonomous)** for facilitating this OJT opportunity.
-
----
-
-*M.Sc. Physics | SIES College, Mumbai | OJT at Physical Biology Lab, IIT Bombay | 2025*
+<sub>M.Sc. Physics · SIES College, Mumbai · OJT at Physical Biology Lab, IIT Bombay · 2025</sub>
