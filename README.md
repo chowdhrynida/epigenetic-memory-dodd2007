@@ -53,8 +53,18 @@ loop that can lock a chromatin region into a stable, heritable state.
 | **U** | Unmodified | Neutral / intermediate |
 
 <p align="center">
+  <img src="nucleosome_structure.png" width="640" alt="Nucleosome structure diagram"><br>
+  <sub><b>Figure A.</b> DNA wraps around a core of histone proteins to form a nucleosome; modification marks are added to the protruding histone tails.</sub>
+</p>
+
+<p align="center">
+  <img src="histone_modification_types.png" width="640" alt="Histone modification types diagram"><br>
+  <sub><b>Figure B.</b> The two modifications this model tracks: methylation (silencing) and acetylation (activation), each added and removed by a dedicated pair of enzymes.</sub>
+</p>
+
+<p align="center">
   <img src="theory_state_diagram.png" width="620" alt="M-U-A nucleosome state transition diagram"><br>
-  <sub><b>Figure A.</b> Nucleosomes switch between Methylated (M) and Acetylated (A) states only via the Unmodified (U) intermediate. Each modified state recruits enzymes that reinforce the same modification in neighboring nucleosomes — a positive feedback loop competing against spontaneous noise.</sub>
+  <sub><b>Figure C.</b> Nucleosomes switch between Methylated (M) and Acetylated (A) states only via the Unmodified (U) intermediate. Each modified state recruits enzymes that reinforce the same modification in neighboring nucleosomes — a positive feedback loop competing against spontaneous noise.</sub>
 </p>
 
 Because all transitions pass through the unmodified state (no direct M ↔ A conversion),
@@ -112,7 +122,7 @@ random noise.
 
 <p align="center">
   <img src="model_array_diagram.png" width="650" alt="Linear nucleosome array with local and long-range recruitment"><br>
-  <sub><b>Figure B.</b> The simulated system: a linear array of N = 60 nucleosomes (truncated here for clarity). A modified nucleosome can recruit its immediate neighbor (solid arrow) or, under the spatial-constraint model, a distant nucleosome with probability decaying as a power law in separation d (dashed arrow) — used to probe the role of long-range interactions in Section 4.5.</sub>
+  <sub><b>Figure D.</b> The simulated system: a linear array of N = 60 nucleosomes (truncated here for clarity). A modified nucleosome can recruit its immediate neighbor (solid arrow) or, under the spatial-constraint model, a distant nucleosome with probability decaying as a power law in separation d (dashed arrow) — used to probe the role of long-range interactions in Section 4.5.</sub>
 </p>
 
 ---
@@ -160,28 +170,30 @@ in [§6](#6-repository-structure)):
 ### 4.1 Bistability emerges above a critical feedback-to-noise ratio
 
 <p align="center">
-  <img src="results/bistability_timetrace.png" width="600" alt="Time trace of M(t) at varying F"><br>
+  <img src="sim_code/Output-file/fig_1_bistability.png" width="600" alt="Time trace of M(t) at varying F"><br>
   <sub><b>Figure 1.</b> Time evolution of the methylated fraction M(t) at F = 0.4, 1.0, 1.4, 2.0. A clear bimodal distribution P(M) emerges at high F, indicating strong bistability.</sub>
 </p>
 
 ### 4.2 State lifetime grows with feedback strength
 
 <p align="center">
-  <img src="results/lifetime_vs_F.png" width="600" alt="State lifetime vs feedback-to-noise ratio"><br>
+  <img src="sim_code/Output-file/2E.png" width="600" alt="State lifetime vs feedback-to-noise ratio"><br>
   <sub><b>Figure 2.</b> Average lifetime of a dominant (high-M or high-A) state increases approximately exponentially with F.</sub>
 </p>
 
 ### 4.3 Gap score shows a sharp transition
 
 <p align="center">
-  <img src="results/gap_score_vs_F.png" width="600" alt="Gap score vs feedback-to-noise ratio"><br>
+  <img src="sim_code/Output-file/2F.png" width="600" alt="Gap score vs feedback-to-noise ratio"><br>
   <sub><b>Figure 3.</b> Gap score G rises sigmoidally with F, with a sharp transition around F ≈ 1.0–1.5, and G → 1 confirms robust bistability at high feedback.</sub>
 </p>
 
 ### 4.4 Cooperativity is essential only for partial feedback
 
 <p align="center">
-  <img src="results/cooperativity_cases.png" width="600" alt="Gap score vs F for cooperativity Cases A, B, C"><br>
+  <img src="sim_code/Output-file/fig_3_caseA.jpg" width="270" alt="Case A gap score vs F">
+  <img src="sim_code/Output-file/fig_3_caseB.jpg" width="270" alt="Case B gap score vs F">
+  <img src="sim_code/Output-file/fig_3_caseC.jpg" width="270" alt="Case C gap score vs F"><br>
   <sub><b>Figure 4.</b> Case A (full feedback) shows strong bistability even without explicit cooperativity, via implicit two-step recruitment. Case B (modification-only) requires cooperativity for stable memory. Case C (demodification-only) remains weakly bistable even with cooperativity.</sub>
 </p>
 
@@ -191,11 +203,25 @@ in [§6](#6-repository-structure)):
 | B | Modification only | Cooperativity required for bistability |
 | C | Demodification only | Cooperativity alone is insufficient |
 
+<p align="center">
+  <img src="sim_code/Output-file/fig_3_caseA_prob_correct.png" width="270" alt="Case A P(M-A) distribution">
+  <img src="sim_code/Output-file/fig_3_caseB_prob_correct.png" width="270" alt="Case B P(M-A) distribution">
+  <img src="sim_code/Output-file/fig_3_caseC_prob_correct.png" width="270" alt="Case C P(M-A) distribution"><br>
+  <sub><b>Figure 4b.</b> P(M − A) distributions at F = 77 for Cases A, B, and C (cooperative vs. non-cooperative). Case A is bimodal regardless of cooperativity; Case C stays broad and centered near zero even with cooperativity.</sub>
+</p>
+
 ### 4.5 Long-range recruitment matters
 
 <p align="center">
-  <img src="results/spatial_constraints.png" width="600" alt="Gap score vs F for spatial models"><br>
+  <img src="sim_code/Output-file/fig_4.png" width="600" alt="Gap score vs F for spatial models"><br>
   <sub><b>Figure 5.</b> Restricting recruitment to nearest neighbors sharply weakens bistability; power-law decay (∝ 1/d^1.5), consistent with 3D chromatin folding, partially restores it.</sub>
+</p>
+
+<p align="center">
+  <img src="sim_code/Output-file/fig_4_caseA_prob.png" width="270" alt="Standard model P(M-A) distribution">
+  <img src="sim_code/Output-file/fig_4_caseB_prob.png" width="270" alt="Neighbor-limited model P(M-A) distribution">
+  <img src="sim_code/Output-file/fig_4_caseC_prob.png" width="270" alt="Power-law model P(M-A) distribution"><br>
+  <sub><b>Figure 5b.</b> P(M − A) distributions for the standard (no constraint), neighbor-limited, and power-law spatial models, across a range of F.</sub>
 </p>
 
 | Case | Spatial model | Result |
