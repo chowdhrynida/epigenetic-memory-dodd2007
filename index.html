@@ -326,7 +326,7 @@ footer{padding:28px 20px 60px;text-align:center;font-size:14px;color:var(--mute)
 <section class="stage" id="s9">
   <div class="wrap">
     <div class="copy">
-      <h2>Model overview: a kinetic Monte Carlo simulation</h2>
+      <h2>Model overview: a Monte Carlo simulation</h2>
       <p class="lead">A region of N = 60 nucleosomes, each in one of three states — Methylated (M), Unmodified (U) or Acetylated (A) — is updated one nucleosome at a time in a stochastic (kinetic Monte Carlo style) simulation.</p>
       <p>Every step, one nucleosome n1 is picked at random. With probability <b>a</b>, it looks at another randomly chosen nucleosome n2: if n2 is M, n1 moves one step towards M (A&#8594;U or U&#8594;M); if n2 is A, n1 moves one step towards A (M&#8594;U or U&#8594;A) — nothing happens if n2 is U, or if n1 is already the extreme n2 is pulling it towards. Otherwise, with probability <b>1&#8722;a</b>, n1 gets a noisy nudge instead: from A there's only a 1-in-3 chance of decaying to U (otherwise it stays A); from M, likewise a 1-in-3 chance of decaying to U; from U, a 1-in-3 chance of becoming A, a 1-in-3 chance of becoming M, and a 1-in-3 chance of staying U. Either way — feedback or noise — a nucleosome only ever flips between A and M by passing through U; it never jumps directly.</p>
       <div class="eq">F = a / (1&#8722;a)<small>the feedback-to-noise ratio: how much recruitment dominates over random flipping</small></div>
